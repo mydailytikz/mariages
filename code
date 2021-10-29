@@ -1,0 +1,75 @@
+import random
+
+#permutation aléatoire de [[0,n-1]]
+def permutation(n):
+    L,M=[],[]
+    for k in range(0,n):
+        L=L+[random.random()]
+    while min(L)<1:
+        k=0
+        while L[k]!=min(L):
+            k+=1
+        M,L[k]=M+[k],1
+    return M
+
+#fait l'experience, et renvoie le nombre de personnes satisfaites (critère défini plus bas)
+def mariage(n,maxi):
+    C,S=[],[[],[]]
+    for i in range(0,n):
+        S[0],S[1]=S[0]+[0],S[1]+[0]
+    F,H=[],[]
+    for i in range(0,n):
+        F,H=F+[permutation(n)],H+[permutation(n)]
+    etape=[]
+    for i in range(0,n):
+        etape=etape+[0]
+    while min(S[0])==0:
+        P=[]
+        for i in range(0,n):
+            P=P+[[]]
+        for i in range(0,n):
+            if S[0][i]==0:
+                P[H[i][etape[i]]]=P[H[i][etape[i]]]+[i]
+                etape[i]+=1
+        for i in range(0,n):
+            if S[1][i]==1 and len(P[i])>0:
+                for c in C:
+                    if c[1]==i:
+                        P[i]=P[i]+[c[0]]
+        for i in range(0,n):
+            if len(P[i])>0:
+                t=0
+                while not(F[i][t] in P[i]):
+                    t+=1
+                if S[1][i]==0:
+                    S[1][i],S[0][F[i][t]]=1,1
+                    C=C+[[F[i][t],i]]
+                else:
+                    for c in C:
+                        if c[1]==i:
+                            j=c[0]
+                    k=0
+                    while F[i][k]!=j and F[i][k]!=F[i][t]:
+                        k+=1
+                    if k!=j:
+                        C.remove([j,i])
+                        C=C+[[F[i][t],i]]
+                        S[0][j]=0
+                        S[0][F[i][t]]=1                
+    satisfait=0
+    for c in C:
+        if c[0] in F[c[1]][0:maxi]:
+            satisfait+=1
+        if c[1] in H[c[0]][0:maxi]:
+            satisfait+=1
+    return satisfait
+
+S=0
+n=100 #nombre d'hommes, nombre de femmes
+k=10 #nombre d'expériences
+maxi=1 #indice max pour lequel une personne est considérée comme satisfaite
+for i in range(0,k):
+    l=mariage(n,maxi)
+    print(l)
+    S+=l
+print(S/k)
